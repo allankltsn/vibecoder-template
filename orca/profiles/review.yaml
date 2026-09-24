@@ -1,0 +1,37 @@
+# Perfil: Code Review
+# Uso: orca run --profile review --task "revisar PR #42"
+#
+# Claude revisa o código com foco em qualidade, segurança e manutenibilidade.
+
+profile:
+  name: review
+  description: "Code review focado em qualidade e segurança"
+
+  phases:
+    - name: review
+      agent: claude
+      prompt_prefix: |
+        Revise o código com foco em:
+
+        1. **Corretude**: O código faz o que deveria?
+        2. **Tipos**: TypeScript/Python types estão corretos?
+        3. **Segurança**: Há vulnerabilidades (injection, XSS, SSRF, exposed secrets)?
+        4. **Performance**: Há queries N+1, re-renders desnecessários, chamadas síncronas?
+        5. **Manutenibilidade**: O código é legível? Segue os padrões do projeto?
+        6. **Testes**: Os casos críticos têm cobertura?
+
+        Para cada problema encontrado:
+        - Severidade: critical | major | minor | suggestion
+        - Localização: arquivo e linha
+        - Descrição: o que está errado e por quê
+        - Sugestão: como corrigir
+
+  context:
+    inject_files:
+      - AGENTS.md
+    inject_tree: false
+    max_context_files: 10
+
+  output:
+    format: summary
+    auto_apply: false

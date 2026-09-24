@@ -1,0 +1,28 @@
+version: "1"
+agents:
+  claude:
+    provider: anthropic
+    model: claude-opus-4-5
+  codex:
+    provider: openai
+    model: codex-mini-latest
+
+profiles:
+  new-command:
+    agents: [claude, codex]
+    strategy: parallel
+    judge: claude
+  tests:
+    agents: [codex]
+    strategy: sequential
+  ux-review:
+    agents: [claude]
+    strategy: sequential
+
+context:
+  inject_files: [AGENTS.md]
+  inject_tree: true
+
+output:
+  format: diff
+  auto_apply: false

@@ -1,0 +1,96 @@
+# Orca — Hub Master Configuration
+# Orquestra Claude, Codex e Gemini em paralelo para maximizar qualidade e velocidade.
+#
+# Uso:
+#   orca run --config orca/orca.yaml --profile feature --task "add user settings page"
+#   orca run --config orca/orca.yaml --profile bugfix --task "fix null pointer in profile endpoint"
+
+version: "1"
+
+# === AGENTES ===
+agents:
+  claude:
+    provider: anthropic
+    model: claude-opus-4-5
+    description: "Melhor para: arquitetura complexa, refactoring, AI/LLM, raciocínio profundo"
+    strengths: [architecture, refactoring, ai-systems, complex-logic]
+
+  codex:
+    provider: openai
+    model: codex-mini-latest
+    description: "Melhor para: features isoladas, boilerplate, CRUD, UI simples"
+    strengths: [crud, boilerplate, ui-components, simple-features]
+
+  gemini:
+    provider: google
+    model: gemini-2.5-flash
+    description: "Alternativa rápida — bom para tarefas simples e revisões"
+    strengths: [simple-tasks, review, documentation]
+
+# === PERFIS ===
+# Cada perfil define quais agentes usar e como combinar os resultados
+profiles:
+  feature:
+    description: "Implementar nova feature completa (frontend + backend)"
+    agents: [claude, codex]
+    strategy: parallel
+    judge: claude
+    context:
+      inject_files: [AGENTS.md, ".claude/CLAUDE.md"]
+      inject_tree: true
+      max_context_files: 25
+
+  bugfix:
+    description: "Diagnosticar e corrigir bug"
+    agents: [claude, codex]
+    strategy: parallel
+    judge: claude
+    max_rounds: 2
+    context:
+      inject_files: [AGENTS.md]
+      inject_tree: true
+
+  review:
+    description: "Code review — qualidade, segurança, performance"
+    agents: [claude]
+    strategy: sequential
+    context:
+      inject_files: [AGENTS.md]
+
+  explore:
+    description: "Explorar abordagens diferentes (máxima diversidade de opiniões)"
+    agents: [claude, codex, gemini]
+    strategy: parallel
+    judge: claude
+    context:
+      inject_files: [AGENTS.md, ".claude/CLAUDE.md"]
+      inject_tree: true
+
+  ai-feature:
+    description: "Feature que envolve LLM, agentes ou AI"
+    agents: [claude]
+    strategy: sequential
+    context:
+      inject_files: [AGENTS.md, ".claude/agents/ai-engineer.md"]
+      inject_tree: true
+
+  frontend-only:
+    description: "Feature de UI puro (sem mudança de backend)"
+    agents: [codex, claude]
+    strategy: parallel
+    judge: claude
+    context:
+      inject_files: [AGENTS.md]
+
+  quick:
+    description: "Task simples e rápida — um agente, sem julgamento"
+    agents: [codex]
+    strategy: sequential
+
+# === OUTPUT ===
+output:
+  format: diff
+  show_scores: true
+  auto_apply: false
+  save_history: true
+  history_dir: ".orca-history"

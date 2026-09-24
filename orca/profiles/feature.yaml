@@ -1,0 +1,40 @@
+# Perfil: Feature completa
+# Uso: orca run --profile feature --task "implementar página de configurações do usuário"
+#
+# Claude faz a arquitetura; Codex faz a implementação; Claude julga o resultado.
+
+profile:
+  name: feature
+  description: "Nova feature vertical: API + Service + UI"
+
+  phases:
+    - name: design
+      agent: claude
+      prompt_prefix: |
+        Antes de implementar, defina brevemente:
+        1. Quais arquivos serão criados/modificados
+        2. A interface da API (se houver)
+        3. O componente de UI esperado
+
+    - name: implement
+      agents: [claude, codex]
+      strategy: parallel
+
+    - name: judge
+      agent: claude
+      criteria:
+        - correctness: "O código implementa corretamente o requisito?"
+        - types: "TypeScript/Python types estão corretos e completos?"
+        - patterns: "Segue os padrões do projeto (AGENTS.md)?"
+        - tests: "Testes foram incluídos?"
+
+  context:
+    inject_files:
+      - AGENTS.md
+      - ".claude/CLAUDE.md"
+    inject_tree: true
+    max_context_files: 25
+
+  output:
+    format: diff
+    auto_apply: false

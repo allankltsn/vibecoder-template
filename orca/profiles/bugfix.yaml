@@ -1,0 +1,44 @@
+# Perfil: Bug fix
+# Uso: orca run --profile bugfix --task "corrigir erro 500 no endpoint POST /api/v1/users"
+#
+# Ambos agentes investigam o bug de forma independente.
+# Claude julga qual solução resolve o problema sem introduzir novos bugs.
+
+profile:
+  name: bugfix
+  description: "Diagnosticar e corrigir bug com validação"
+
+  phases:
+    - name: diagnose
+      agent: claude
+      prompt_prefix: |
+        Antes de sugerir fix:
+        1. Identifique a causa raiz do bug
+        2. Liste os arquivos afetados
+        3. Descreva o comportamento esperado vs atual
+
+    - name: fix
+      agents: [claude, codex]
+      strategy: parallel
+      prompt_prefix: |
+        Corrija o bug identificado. Certifique-se de:
+        - Não quebrar comportamento existente
+        - Adicionar teste que falha antes do fix e passa depois
+
+    - name: judge
+      agent: claude
+      criteria:
+        - root_cause: "Fix resolve a causa raiz, não só o sintoma?"
+        - regression: "Fix pode causar outros bugs?"
+        - test: "Teste foi adicionado?"
+
+  context:
+    inject_files:
+      - AGENTS.md
+    inject_tree: true
+    max_context_files: 15
+
+  output:
+    format: diff
+    show_scores: true
+    auto_apply: false
