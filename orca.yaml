@@ -1,0 +1,67 @@
+# Orca — Configuração de Orquestração Multi-Agente
+# Referência: https://github.com/orca-app/orca
+#
+# Orca roda múltiplos agentes em paralelo para a mesma tarefa
+# e permite escolher a melhor solução entre as opções geradas.
+
+version: "1"
+
+# Agentes disponíveis para orquestração
+agents:
+  claude:
+    provider: anthropic
+    model: claude-opus-4-5
+    description: "Melhor para arquitetura, refactoring e código complexo"
+
+  codex:
+    provider: openai
+    model: codex-mini-latest
+    description: "Rápido, bom para features isoladas e boilerplate"
+
+  gemini:
+    provider: google
+    model: gemini-2.0-flash
+    description: "Alternativa rápida, bom para tasks simples"
+
+# Perfis de execução — combinações pré-definidas de agentes por tipo de tarefa
+profiles:
+  feature:
+    description: "Implementar uma nova feature do zero"
+    agents: [claude, codex]
+    strategy: parallel
+    max_rounds: 1
+    judge: claude
+
+  bugfix:
+    description: "Diagnosticar e corrigir um bug"
+    agents: [claude, codex]
+    strategy: parallel
+    max_rounds: 2
+    judge: claude
+
+  review:
+    description: "Code review e sugestões de melhoria"
+    agents: [claude]
+    strategy: sequential
+    max_rounds: 1
+
+  explore:
+    description: "Explorar opções de implementação (maior diversidade)"
+    agents: [claude, codex, gemini]
+    strategy: parallel
+    max_rounds: 1
+    judge: claude
+
+# Contexto injetado em todos os agentes
+context:
+  inject_files:
+    - AGENTS.md
+    - ".claude/CLAUDE.md"
+  inject_tree: true
+  max_context_files: 20
+
+# Configurações de output
+output:
+  format: diff        # diff | full | summary
+  show_scores: true
+  auto_apply: false   # sempre pede confirmação antes de aplicar

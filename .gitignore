@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+.next/
+dist/
+.turbo/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Python virtualenv
+.venv/
+venv/
+
+# uv
+uv.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/settings.json
+.idea/
+*.swp
+
+# Vercel
+.vercel/

@@ -1,0 +1,5 @@
+{
+  "env": {
+    "PYTHONPATH": "apps/api/src"
+  }
+}
