@@ -1,0 +1,38 @@
+version: "1"
+
+agents:
+  claude:
+    provider: anthropic
+    model: claude-opus-4-5
+    description: "Arquitetura, auth, componentes complexos"
+  codex:
+    provider: openai
+    model: codex-mini-latest
+    description: "UI, forms, páginas, CRUD simples"
+
+profiles:
+  page:
+    description: "Nova página ou rota"
+    agents: [claude, codex]
+    strategy: parallel
+    judge: claude
+
+  component:
+    description: "Novo componente React"
+    agents: [codex]
+    strategy: sequential
+
+  api-route:
+    description: "Nova Vercel Function / API Route"
+    agents: [claude, codex]
+    strategy: parallel
+    judge: claude
+
+context:
+  inject_files:
+    - AGENTS.md
+  inject_tree: true
+
+output:
+  format: diff
+  auto_apply: false

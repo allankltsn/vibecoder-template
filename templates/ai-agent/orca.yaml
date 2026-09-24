@@ -1,0 +1,43 @@
+version: "1"
+
+agents:
+  claude:
+    provider: anthropic
+    model: claude-opus-4-5
+    description: "Arquitetura de agentes, tools complexas, raciocínio"
+  codex:
+    provider: openai
+    model: codex-mini-latest
+    description: "Implementação de tools, boilerplate, testes"
+
+profiles:
+  new-tool:
+    description: "Implementar uma nova tool para o agente"
+    agents: [claude, codex]
+    strategy: parallel
+    judge: claude
+
+  agent-design:
+    description: "Projetar a arquitetura de um novo agente"
+    agents: [claude]
+    strategy: sequential
+
+  debug:
+    description: "Debugar comportamento inesperado do agente"
+    agents: [claude]
+    strategy: sequential
+
+  test-coverage:
+    description: "Escrever testes para tools e agentes"
+    agents: [codex]
+    strategy: sequential
+
+context:
+  inject_files:
+    - AGENTS.md
+    - ".claude/CLAUDE.md"
+  inject_tree: true
+
+output:
+  format: diff
+  auto_apply: false

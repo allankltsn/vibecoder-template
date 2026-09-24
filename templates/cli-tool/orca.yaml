@@ -1,0 +1,37 @@
+version: "1"
+
+agents:
+  claude:
+    provider: anthropic
+    model: claude-opus-4-5
+    description: "UX da CLI, mensagens de erro, arquitetura"
+  codex:
+    provider: openai
+    model: codex-mini-latest
+    description: "Novos comandos, testes, boilerplate"
+
+profiles:
+  new-command:
+    description: "Implementar novo comando CLI"
+    agents: [claude, codex]
+    strategy: parallel
+    judge: claude
+
+  ux-review:
+    description: "Revisar mensagens e UX da CLI"
+    agents: [claude]
+    strategy: sequential
+
+  tests:
+    description: "Escrever testes para comandos"
+    agents: [codex]
+    strategy: sequential
+
+context:
+  inject_files:
+    - AGENTS.md
+  inject_tree: true
+
+output:
+  format: diff
+  auto_apply: false

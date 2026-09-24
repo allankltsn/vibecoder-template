@@ -1,0 +1,45 @@
+version: "1"
+
+agents:
+  claude:
+    provider: anthropic
+    model: claude-opus-4-5
+    description: "Arquitetura, auth, payments, código complexo"
+  codex:
+    provider: openai
+    model: codex-mini-latest
+    description: "Features de dashboard, CRUD, boilerplate"
+
+profiles:
+  feature:
+    description: "Nova feature SaaS (ex: user settings, billing page)"
+    agents: [claude, codex]
+    strategy: parallel
+    judge: claude
+
+  landing:
+    description: "Landing page, copy, componentes de marketing"
+    agents: [codex]
+    strategy: sequential
+
+  api-endpoint:
+    description: "Novo endpoint FastAPI com testes"
+    agents: [claude, codex]
+    strategy: parallel
+    judge: claude
+
+  bugfix:
+    description: "Corrigir bug reportado"
+    agents: [claude]
+    strategy: sequential
+
+context:
+  inject_files:
+    - AGENTS.md
+    - ".claude/CLAUDE.md"
+  inject_tree: true
+  max_context_files: 15
+
+output:
+  format: diff
+  auto_apply: false
